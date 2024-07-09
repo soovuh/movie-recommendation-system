@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 
-from core.models import Movie
+from core.models import Movie, Rating
 
 
 User = get_user_model()
@@ -24,3 +24,10 @@ class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = "__all__"
+
+
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = ["id", "user", "movie", "rating", "review", "created_at"]
+        read_only_fields = ["user", "movie", "created_at"]
