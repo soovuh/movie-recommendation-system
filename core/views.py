@@ -1,10 +1,13 @@
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 
 from core.api import serializers
+from core.models import Movie
+from core.permissions import IsAdminOrReadOnly
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -24,3 +27,9 @@ class UserLoginView(APIView):
             return Response({"token": token.key})
         else:
             return Response({"error": "Invalid credentials"}, status=401)
+
+
+class MovieViewSet(ModelViewSet):
+    queryset = Movie.objects.all()
+    serializer_class = serializers.MovieSerializer
+    permission_classes = [IsAdminOrReadOnly]
