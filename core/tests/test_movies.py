@@ -97,6 +97,6 @@ class TestMovieViewSet:
 
         url = reverse("movie-detail", args=[movie.id])
         response = api_client.get(url)
-        
+
         assert response.status_code == 200
-        assert MovieViewingHistory.objects.get(user=user, movie=movie) != None
+        assert MovieViewingHistory.objects.get(user=user, movie=movie) is not None
