@@ -7,8 +7,8 @@ from rest_framework.decorators import action
 from django.contrib.auth import authenticate
 
 from core.api import serializers
-from core.models import Movie, Rating
-from core.permissions import IsAdminOrReadOnly
+from core.models import Movie, Rating, MovieViewingHistory
+from core.api.permissions import IsAdminOrReadOnly
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -35,10 +35,23 @@ class MovieViewSet(ModelViewSet):
     serializer_class = serializers.MovieSerializer
     permission_classes = [IsAdminOrReadOnly]
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        user = request.user
+
+        already_viewed = MovieViewingHistory.objects.filter(
+            user=user, movie=instance
+        ).first()
+        if not already_viewed:
+            MovieViewingHistory.objects.create(user=user, movie=instance)
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
     @action(
         detail=True,
         methods=["get"],
-        permission_classes=[permissions.IsAuthenticatedOrReadOnly],
+        permission_classes=[permissions.IsAuthenticated],
         url_path="ratings",
     )
     def get_ratings(self, request, pk=None):

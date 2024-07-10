@@ -36,3 +36,18 @@ class Rating(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.movie.update_general_rating()
+
+    def __str__(self):
+        return f"{self.user} - {self.movie}: {self.rating}"
+
+
+class MovieViewingHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    viewed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "movie")
+
+    def __str__(self):
+        return f"{self.user.username} viewed {self.movie.title} at {self.viewed_at}"

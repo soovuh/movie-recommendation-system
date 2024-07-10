@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 
-from core.models import Rating
+from core.models import Rating, MovieViewingHistory
 
 
 @pytest.mark.django_db
@@ -91,3 +91,12 @@ class TestMovieViewSet:
 
         assert response.status_code == 400
         assert response.data["error"] == "You have already rated this movie."
+
+    def test_movie_viewing_history_created(self, api_client, user, movie):
+        api_client.force_authenticate(user=user)
+
+        url = reverse("movie-detail", args=[movie.id])
+        response = api_client.get(url)
+
+        assert response.status_code == 200
+        assert MovieViewingHistory.objects.get(user=user, movie=movie) is not None
