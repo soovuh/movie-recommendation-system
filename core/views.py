@@ -14,7 +14,7 @@ from core.models import Movie, Rating, MovieViewingHistory
 from core.api.permissions import IsAdminOrReadOnly
 from core.api.filters import MovieFilter
 from core.utils.recommendation import generate_recommendations
-from core.pagination import CustomPageNumberPagination
+from core.api.pagination import CustomPageNumberPagination
 
 
 class UserRegistrationView(generics.CreateAPIView):
