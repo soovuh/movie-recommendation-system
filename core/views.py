@@ -9,6 +9,7 @@ from django.contrib.auth import authenticate
 from core.api import serializers
 from core.models import Movie, Rating, MovieViewingHistory
 from core.api.permissions import IsAdminOrReadOnly
+from core.utils.recommendation import generate_recommendations
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -79,3 +80,13 @@ class MovieViewSet(ModelViewSet):
             serializer.save(user=user, movie=movie)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+
+
+class MovieRecommendationView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        recommendations = generate_recommendations(user)
+        return Response(recommendations)
