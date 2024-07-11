@@ -26,6 +26,12 @@ class MovieSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class MovieRecommendationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Movie
+        fields = ["id", "title", "genre", "general_rating"]
+
+
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
