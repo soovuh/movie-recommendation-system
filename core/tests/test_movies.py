@@ -1,16 +1,18 @@
 import pytest
 from django.urls import reverse
+from django.utils import timezone
 
-from core.models import Rating, MovieViewingHistory
+from core.models import Rating, MovieViewingHistory, Movie
 
 
 @pytest.mark.django_db
 class TestMovieViewSet:
-    def test_get_movie_list(self, api_client, admin_user):
+    def test_get_movie_list(self, api_client, admin_user, movie):
         api_client.force_authenticate(user=admin_user)
         url = reverse("movie-list")
         response = api_client.get(url)
         assert response.status_code == 200
+        assert len(response.data["results"]) == 1
 
     def test_get_single_movie(self, api_client, admin_user, movie):
         api_client.force_authenticate(user=admin_user)
@@ -100,3 +102,63 @@ class TestMovieViewSet:
 
         assert response.status_code == 200
         assert MovieViewingHistory.objects.get(user=user, movie=movie) is not None
+
+
+@pytest.mark.django_db
+class TestMovieFilters:
+    def test_filter_movies_by_genre(self, api_client, admin_user):
+        api_client.force_authenticate(user=admin_user)
+        Movie.objects.create(
+            title="Comedy Movie",
+            genre="Comedy",
+            description="A funny movie.",
+            release_date=timezone.now(),
+        )
+        Movie.objects.create(
+            title="Drama Movie",
+            genre="Drama",
+            description="A dramatic movie.",
+            release_date=timezone.now(),
+        )
+        url = reverse("movie-list")
+        response = api_client.get(url, {"genre": "Comedy"})
+        assert response.status_code == 200
+        assert len(response.data["results"]) == 1
+        assert response.data["results"][0]["genre"] == "Comedy"
+
+    def test_search_movies_by_title(self, api_client, admin_user):
+        api_client.force_authenticate(user=admin_user)
+        Movie.objects.create(
+            title="Unique Title",
+            genre="Action",
+            description="An action movie.",
+            release_date=timezone.now(),
+        )
+        Movie.objects.create(
+            title="Another Title",
+            genre="Action",
+            description="Another action movie.",
+            release_date=timezone.now(),
+        )
+        url = reverse("movie-list")
+        response = api_client.get(url, {"search": "Unique Title"})
+        assert response.status_code == 200
+        assert len(response.data["results"]) == 1
+        assert response.data["results"][0]["title"] == "Unique Title"
+
+    def test_pagination(self, api_client, admin_user):
+        api_client.force_authenticate(user=admin_user)
+        for i in range(15):
+            Movie.objects.create(
+                title=f"Movie {i}",
+                genre="Action",
+                description="An action movie.",
+                release_date=timezone.now(),
+            )
+        url = reverse("movie-list")
+        response = api_client.get(url, {"page": 2, "page_size": 10})
+        assert response.status_code == 200
+        assert len(response.data["results"]) == 5
+        assert response.data["count"] == 15
+        assert response.data["next"] is None
+        assert response.data["previous"] is not None
