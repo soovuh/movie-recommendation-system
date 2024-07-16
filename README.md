@@ -15,7 +15,7 @@ This project is a Django REST Framework (DRF) based API that provides movie reco
 1. **Clone the repository:**
     ```bash
     git clone https://github.com/soovuh/movie-recommendation-system.git
-    cd <repository-directory>
+    cd movie-recommendation-system
     ```
 
 2. **Create and activate a virtual environment:**
@@ -102,6 +102,31 @@ This project is a Django REST Framework (DRF) based API that provides movie reco
 - **Parameters:** None
 
 **Note:** This endpoint has pagination.
+
+### Admin-only Endpoints
+
+Only admin users can create, update, or delete movies.
+
+### Create Movie
+- **Endpoint:** `api/movies/`
+- **Method:** `POST`
+- **Parameters:**
+    - `title`: string (max_length=255)
+    - `genre`: string (max_length=255)
+    - `description`: text
+    - `release_date`: date
+    - `general_rating`: float (1 - 10)
+    - `review`: string (optional)
+
+### Update Movie
+- **Endpoint:** `api/movies/<id>/`
+- **Method:** `PUT`
+- **Parameters:** Various fields for movie details.
+
+### Delete Movie
+- **Endpoint:** `api/movies/<id>/`
+- **Method:** `DELETE`
+- **Parameters:** None
 
 ## Project Structure
 
